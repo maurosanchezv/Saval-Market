@@ -1,0 +1,15 @@
+User-agent: *
+
+# Desactivar rastreo de rutas privadas y de administración
+Disallow: /login
+Disallow: /dashboard
+Disallow: /clientes
+Disallow: /inventario
+Disallow: /punto-venta
+
+# Permitir rastreo del catálogo y página principal
+Allow: /
+Allow: /catalogo
+
+# Opcional: Reemplaza con tu dominio real cuando lo publiques
+# Sitemap: https://tu-dominio.com/sitemap.xml

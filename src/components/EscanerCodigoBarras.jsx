@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { X, ScanLine, Keyboard } from 'lucide-react';
 
@@ -9,7 +9,6 @@ let contadorInstancias = 0;
 // Incluye un modo de ingreso manual como respaldo si no hay cámara o se niega el permiso.
 export default function EscanerCodigoBarras({ onDetected, onClose, titulo = 'Escanear Código de Barras' }) {
   const [elementId] = useState(() => `escaner-cb-${++contadorInstancias}`);
-  const scannerRef = useRef(null);
   const [error, setError] = useState('');
   const [manualMode, setManualMode] = useState(false);
   const [manualCode, setManualCode] = useState('');
@@ -21,8 +20,19 @@ export default function EscanerCodigoBarras({ onDetected, onClose, titulo = 'Esc
     if (manualMode) return;
     let detectado = false;
     let cancelado = false;
+    let detenido = false; // evita llamar stop() dos veces sobre la misma cámara
     const scanner = new Html5Qrcode(elementId);
-    scannerRef.current = scanner;
+
+    // Detener la cámara puede dispararse tanto desde onSuccess (al detectar un código)
+    // como desde el cleanup de este efecto (al cerrarse el modal, ej. porque el padre
+    // desmonta el componente apenas recibe onDetected). Si ambos llaman a scanner.stop()
+    // casi al mismo tiempo, en Android/Chrome esto puede colgar la pestaña entera
+    // (crash a nivel de driver de cámara). Esta bandera garantiza que se detenga una sola vez.
+    const detenerCamara = () => {
+      if (detenido) return Promise.resolve();
+      detenido = true;
+      return scanner.stop().then(() => scanner.clear()).catch(() => {});
+    };
 
     const log = (msg) => {
       console.log('[Escaner]', msg);
@@ -55,8 +65,11 @@ export default function EscanerCodigoBarras({ onDetected, onClose, titulo = 'Esc
     const onSuccess = (decodedText) => {
       if (detectado) return;
       detectado = true;
-      scanner.stop().then(() => scanner.clear()).catch(() => {});
-      onDetected(decodedText.trim());
+      log(`Código detectado: ${decodedText.trim()}. Deteniendo cámara...`);
+      detenerCamara().finally(() => {
+        log('Cámara detenida. Notificando detección.');
+        onDetected(decodedText.trim());
+      });
     };
     const onFailure = () => {}; // ignorar fallos de decodificación cuadro a cuadro (es normal mientras se enfoca)
 
@@ -104,9 +117,7 @@ export default function EscanerCodigoBarras({ onDetected, onClose, titulo = 'Esc
     return () => {
       detectado = true;
       cancelado = true;
-      if (scannerRef.current) {
-        scannerRef.current.stop().then(() => scannerRef.current.clear()).catch(() => {});
-      }
+      detenerCamara();
     };
   }, [manualMode, onDetected, elementId]);
 

@@ -26,8 +26,18 @@ export default function EscanerCodigoBarras({ onDetected, onClose, titulo = 'Esc
 
     const log = (msg) => {
       console.log('[Escaner]', msg);
-      setDebugLog((prev) => [...prev, msg]);
+      const linea = `${new Date().toLocaleTimeString()} — ${msg}`;
+      setDebugLog((prev) => [...prev, linea]);
+      // Persistido en localStorage (no solo en estado de React) porque si la pestaña
+      // se cuelga/recarga, el estado se pierde pero el localStorage sobrevive.
+      try {
+        const previo = JSON.parse(localStorage.getItem('debug_escaner_log') || '[]');
+        localStorage.setItem('debug_escaner_log', JSON.stringify([...previo, linea].slice(-50)));
+      } catch {
+        // ignorar si localStorage no está disponible
+      }
     };
+    localStorage.setItem('debug_escaner_log', JSON.stringify([`${new Date().toLocaleTimeString()} — Nueva sesión de escaneo iniciada`]));
 
     const checkVideo = (etiqueta) => {
       setTimeout(() => {

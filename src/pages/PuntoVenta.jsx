@@ -442,8 +442,10 @@ export default function PuntoVenta() {
           </h3>
         </div>
 
+        {/* Área con scroll: lista de items + opciones de compra (cliente, método de pago, teclado) */}
+        <div className="flex-1 min-h-0 overflow-y-auto pr-1">
         {/* Lista de Items */}
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-3 mb-6 pr-1">
+        <div className="space-y-3 mb-6">
           {carrito.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center text-text-secondary py-12">
               <ShoppingCart className="text-text-muted mb-2 opacity-50" size={32} />
@@ -512,7 +514,7 @@ export default function PuntoVenta() {
 
         {/* Opciones de la Compra */}
         {carrito.length > 0 && (
-          <div className="space-y-4 border-t border-border-custom pt-4 mb-6">
+          <div className="space-y-4 border-t border-border-custom pt-4">
             
             {/* Cliente Selector */}
             <div className="space-y-1.5">
@@ -644,9 +646,10 @@ export default function PuntoVenta() {
 
           </div>
         )}
+        </div>
 
-        {/* Resumen Factura y Checkout */}
-        <div className="border-t border-border-custom pt-4 space-y-4 bg-bg-secondary mt-auto">
+        {/* Resumen Factura y Checkout: siempre visible, fuera del área con scroll */}
+        <div className="border-t border-border-custom pt-4 space-y-4 bg-bg-secondary shrink-0">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-text-secondary uppercase">Monto Total</span>
             <span className="text-2xl font-heading font-black text-text-primary">

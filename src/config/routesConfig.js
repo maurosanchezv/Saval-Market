@@ -25,7 +25,8 @@ export const routesConfig = [
     icon: LayoutDashboard,
     component: "Dashboard",
     isAdmin: true,
-    requiredPackage: "core"
+    requiredPackage: "core",
+    mobilePrimary: true // se muestra en la barra de navegación inferior en mobile
   },
   {
     path: "/admin/inventario",
@@ -33,7 +34,8 @@ export const routesConfig = [
     icon: Package,
     component: "Inventario",
     isAdmin: true,
-    requiredPackage: "productos"
+    requiredPackage: "productos",
+    mobilePrimary: true
   },
   {
     path: "/admin/punto-venta",
@@ -41,7 +43,8 @@ export const routesConfig = [
     icon: ShoppingCart,
     component: "PuntoVenta",
     isAdmin: true,
-    requiredPackage: "productos"
+    requiredPackage: "productos",
+    mobilePrimary: true
   },
   {
     path: "/admin/pedidos",
@@ -49,7 +52,8 @@ export const routesConfig = [
     icon: ClipboardList,
     component: "Pedidos",
     isAdmin: true,
-    requiredPackage: "productos"
+    requiredPackage: "productos",
+    mobilePrimary: true
   },
   {
     path: "/admin/clientes",

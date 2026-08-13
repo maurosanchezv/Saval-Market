@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { formatPrecio } from '../config/businessConfig';
 import Ticket from '../components/Ticket';
+import SelectorFecha from '../components/SelectorFecha';
 import {
   ClipboardList, Clock, User, CheckCircle, XCircle, Edit2, Trash2, Plus, Minus, X, Save,
-  ShoppingBag, AlertTriangle, AlertCircle, Info, Search, Receipt, ShoppingCart, MessageSquare, Calendar
+  ShoppingBag, AlertTriangle, AlertCircle, Info, Search, Receipt, ShoppingCart, MessageSquare
 } from 'lucide-react';
 
 const ESTADO_TABS = [
@@ -30,19 +31,6 @@ const getNormalEstado = (estado) => {
 
 const hoyStr = () => new Date().toISOString().slice(0, 10);
 const mesActualStr = () => new Date().toISOString().slice(0, 7);
-
-// El selector nativo de fecha en Android puede mostrar el calendario del sistema operativo
-// (ej. era japonesa) si el teléfono lo tiene configurado así, aunque el valor guardado
-// siga siendo gregoriano. Forzamos calendar: 'gregory' para mostrar siempre una fecha clara.
-const formatFechaGregoriana = (valorISO) => {
-  if (!valorISO) return '';
-  return new Date(`${valorISO}T00:00:00`).toLocaleDateString('es-PY', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    calendar: 'gregory',
-  });
-};
 
 export default function Pedidos() {
   const [pedidos, setPedidos] = useState([]);
@@ -336,26 +324,24 @@ export default function Pedidos() {
         </button>
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto sm:ml-auto">
-          <div className="relative min-w-0 w-full sm:w-auto">
-            <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" size={13} />
-            <input
-              type="date"
+          <div className="w-full sm:w-40">
+            <SelectorFecha
+              tipo="date"
               value={filtroFecha.tipo === 'dia' ? filtroFecha.valor : ''}
               onChange={(e) => setFiltroFecha(e.target.value ? { tipo: 'dia', valor: e.target.value } : { tipo: 'todos', valor: '' })}
-              title="Filtrar por día específico"
-              className="w-full sm:w-auto min-w-0 pl-7 pr-2 py-2 rounded-xl border border-border-custom bg-bg-secondary text-text-primary text-[11px] font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer"
+              placeholder="Elegir día"
+              tamano="sm"
             />
-            {filtroFecha.tipo === 'dia' && (
-              <p className="text-[9px] text-text-secondary mt-0.5 truncate">{formatFechaGregoriana(filtroFecha.valor)}</p>
-            )}
           </div>
-          <input
-            type="month"
-            value={filtroFecha.tipo === 'mes' ? filtroFecha.valor : ''}
-            onChange={(e) => setFiltroFecha(e.target.value ? { tipo: 'mes', valor: e.target.value } : { tipo: 'todos', valor: '' })}
-            title="Filtrar por mes específico"
-            className="w-full sm:w-auto min-w-0 px-2.5 py-2 rounded-xl border border-border-custom bg-bg-secondary text-text-primary text-[11px] font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer"
-          />
+          <div className="w-full sm:w-40">
+            <SelectorFecha
+              tipo="month"
+              value={filtroFecha.tipo === 'mes' ? filtroFecha.valor : ''}
+              onChange={(e) => setFiltroFecha(e.target.value ? { tipo: 'mes', valor: e.target.value } : { tipo: 'todos', valor: '' })}
+              placeholder="Elegir mes"
+              tamano="sm"
+            />
+          </div>
         </div>
       </div>
 

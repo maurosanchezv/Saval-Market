@@ -57,6 +57,7 @@ Use the semantic Tailwind classes (`bg-bg-primary`, `bg-bg-card`, `text-text-pri
 
 ## Other conventions
 
+- **Barcode scanning:** `src/components/EscanerCodigoBarras.jsx` wraps `html5-qrcode` in a reusable modal (camera scan with a manual-entry fallback) and is used from both `Inventario` (assign a `codigo_barras` to a product) and `PuntoVenta` (look up a product by scanning). Products are matched via a plain `productos.find(p => p.codigo_barras === codigo)` — there is no dedicated Supabase query for it, so it works unmodified against both the mock and the real client. `supabase_migration_codigo_barras.sql` is a one-time `ALTER TABLE` for existing client projects created before this column existed; new client projects get it directly from `supabase_schema.sql`.
 - **Currency:** use `formatPrecio()` from `businessConfig.js` (formats to `Gs.` with `es-PY` locale, rounds to integer). `BUSINESS_CONFIG.moneda` is the symbol.
 - **Catalog → WhatsApp ordering:** the public `/` catalog builds an order message from `BUSINESS_CONFIG.whatsappMessageTemplate` (placeholders `{items}`, `{total}`, `{name}`, `{pickupTime}`) and sends it to `whatsappNumber`. There is no online checkout.
 - **Product categories** are enumerated in `BUSINESS_CONFIG.categorias`.

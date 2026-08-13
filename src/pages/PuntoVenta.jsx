@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { formatPrecio } from '../config/businessConfig';
 import Ticket from '../components/Ticket';
@@ -6,6 +7,7 @@ import { Search, ShoppingCart, Plus, Minus, Trash2, User, CreditCard, Check, Ale
 import EscanerCodigoBarras from '../components/EscanerCodigoBarras';
 
 export default function PuntoVenta() {
+  const navigate = useNavigate();
   const [productos, setProductos] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -191,7 +193,12 @@ export default function PuntoVenta() {
     setShowScanner(false);
     const producto = productos.find(p => p.codigo_barras && p.codigo_barras === codigo);
     if (!producto) {
-      showToast(`No se encontró ningún producto con el código ${codigo}.`, 'warning');
+      if (carrito.length > 0) {
+        showToast(`Código ${codigo} no encontrado. Terminá o vaciá la venta actual y volvé a escanearlo para crear el producto en Inventario.`, 'warning');
+        return;
+      }
+      showToast(`Código ${codigo} no encontrado. Te llevamos a Inventario para crear el producto.`, 'info');
+      navigate('/admin/inventario', { state: { codigoBarrasPrefill: codigo } });
       return;
     }
     agregarAlCarrito(producto);

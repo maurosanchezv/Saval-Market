@@ -96,6 +96,18 @@ body {
   padding: 0;
 }
 
+/* iOS Safari hace zoom automático de toda la página al enfocar un campo con
+   letra menor a 16px, lo que corta/desplaza el formulario en celulares (iPhone).
+   Esta regla vive fuera de los @layer de Tailwind, así que gana por cascada
+   sin necesitar !important y sin tocar el tamaño de letra en desktop. */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
 /* Toldo digital de rayas (Saval Awning) */
 
 /* Efecto de borde premium y elevación */

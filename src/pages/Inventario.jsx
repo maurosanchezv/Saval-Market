@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { Search, Plus, Edit2, Trash2, X, Save, Image, Package, Grid, List, Upload, Settings, AlertTriangle, AlertCircle, CheckCircle, Info, Eye, EyeOff, ScanLine } from 'lucide-react';
 import { BUSINESS_CONFIG, formatPrecio } from '../config/businessConfig';
 import EscanerCodigoBarras from '../components/EscanerCodigoBarras';
 
 export default function Inventario() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -93,6 +96,11 @@ export default function Inventario() {
     const initData = async () => {
       await fetchProductos();
       cargarCategorias();
+      // Si venimos de un escaneo sin coincidencias en Punto de Venta, abrir directo el alta con el código cargado
+      if (location.state?.codigoBarrasPrefill) {
+        openAddModal(location.state.codigoBarrasPrefill);
+        navigate(location.pathname, { replace: true, state: {} });
+      }
     };
     initData();
   }, []);

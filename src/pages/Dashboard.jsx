@@ -36,6 +36,13 @@ const unidadAbrev = (unidad) => {
   return 'un.';
 };
 
+// Clasifica la urgencia de reposición según el stock restante, independiente del umbral elegido
+const severidadStock = (stock) => {
+  if (stock <= 2) return { texto: 'Crítico', clase: 'bg-red-500 text-white border-red-500' };
+  if (stock <= 5) return { texto: 'Bajo', clase: 'bg-amber-500/10 text-amber-600 border-amber-500/20' };
+  return { texto: 'Alerta', clase: 'bg-sky-500/10 text-sky-500 border-sky-500/20' };
+};
+
 export default function Dashboard() {
   const [stats, setStats] = useState({
     ventasTotal: 0,
@@ -44,10 +51,13 @@ export default function Dashboard() {
     clientesCant: 0
   });
   const [recentSales, setRecentSales] = useState([]);
-  const [stockAlerts, setStockAlerts] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [productosList, setProductosList] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Filtro de Alertas de Inventario: umbral y categoría configurables por el usuario
+  const [umbralStock, setUmbralStock] = useState(3);
+  const [categoriaAlerta, setCategoriaAlerta] = useState('Todas');
 
   // Estado para modal de detalle de venta y ticket
   const [selectedSale, setSelectedSale] = useState(null);
@@ -57,11 +67,10 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       setLoading(true);
       
-      // 1. Obtener conteo de productos e inventario crítico
+      // 1. Obtener conteo de productos e inventario
       const { data: prods } = await supabase.from('productos').select('*');
       if (prods) setProductosList(prods);
-      const criticalStock = prods ? prods.filter(p => p.stock <= 3) : [];
-      
+
       // 2. Obtener clientes
       const { data: clients } = await supabase.from('clientes').select('*');
       
@@ -80,8 +89,6 @@ export default function Dashboard() {
           clientesCant: clients.length
         });
 
-        setStockAlerts(criticalStock);
-        
         // Obtener últimas 5 ventas con su cliente asociado
         const recentFormatted = sales
           .slice(-5)
@@ -125,11 +132,19 @@ export default function Dashboard() {
     fetchDashboardData();
   }, []);
 
-  // Envía la lista de reposición de stock crítico como mensaje de WhatsApp
-  const enviarListaCompras = () => {
-    if (stockAlerts.length === 0) return;
+  // Categorías presentes en el inventario, para el filtro de Alertas
+  const categoriasDisponibles = ['Todas', ...new Set(productosList.map(p => p.categoria).filter(Boolean))];
 
-    const items = stockAlerts
+  // Alertas de Inventario: productos con stock por debajo del umbral y categoría elegidos
+  const alertasFiltradas = productosList
+    .filter(p => p.stock <= umbralStock && (categoriaAlerta === 'Todas' || p.categoria === categoriaAlerta))
+    .sort((a, b) => a.stock - b.stock);
+
+  // Envía la lista de reposición filtrada (según umbral/categoría elegidos) como mensaje de WhatsApp
+  const enviarListaCompras = () => {
+    if (alertasFiltradas.length === 0) return;
+
+    const items = alertasFiltradas
       .map(prod => `• ${prod.nombre} (quedan ${prod.stock} ${unidadAbrev(prod.unidad_medida)})`)
       .join('\n');
 
@@ -307,40 +322,68 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Alertas de Stock Crítico (Chico) */}
+        {/* Alertas de Stock (Chico) */}
         <div className="p-6 rounded-3xl border border-border-custom bg-bg-secondary flex flex-col justify-between premium-card">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-bold uppercase tracking-wider text-text-secondary">
               Alertas de Inventario
             </h3>
-            <div className={`flex h-9 w-9 items-center justify-center rounded-xl border border-current/10 ${stockAlerts.length > 0 ? 'bg-amber-500/10 text-amber-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
+            <div className={`flex h-9 w-9 items-center justify-center rounded-xl border border-current/10 ${alertasFiltradas.length > 0 ? 'bg-amber-500/10 text-amber-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
               <AlertCircle size={16} />
             </div>
           </div>
 
+          {/* Filtro de Umbral y Categoría */}
+          <div className="flex items-center gap-2 mb-4">
+            <label className="flex items-center gap-1.5 text-[10px] font-bold text-text-secondary uppercase shrink-0">
+              Stock &le;
+              <input
+                type="number"
+                min="0"
+                value={umbralStock}
+                onChange={(e) => setUmbralStock(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                className="w-12 px-1.5 py-1 rounded-lg border border-border-custom bg-bg-primary text-text-primary text-xs font-bold text-center focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+            </label>
+            <select
+              value={categoriaAlerta}
+              onChange={(e) => setCategoriaAlerta(e.target.value)}
+              className="flex-1 min-w-0 px-2 py-1 rounded-lg border border-border-custom bg-bg-primary text-text-primary text-[11px] font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            >
+              {categoriasDisponibles.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="flex-1 overflow-y-auto max-h-60 space-y-3">
-            {stockAlerts.length === 0 ? (
+            {alertasFiltradas.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center py-6">
                 <CheckCircle className="text-emerald-500 mb-2" size={24} />
                 <p className="text-xs font-semibold text-text-primary">Stock optimizado</p>
-                <p className="text-[10px] text-text-secondary">No hay productos con stock crítico (menos de 3 unidades).</p>
+                <p className="text-[10px] text-text-secondary">
+                  No hay productos{categoriaAlerta !== 'Todas' ? ` de ${categoriaAlerta}` : ''} con stock igual o menor a {umbralStock} unidades.
+                </p>
               </div>
             ) : (
-              stockAlerts.map(prod => (
-                <div key={prod.id} className="flex items-center justify-between gap-3 p-2.5 rounded-2xl border border-border-custom bg-bg-primary text-xs">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-text-primary truncate">{prod.nombre}</p>
-                    <p className="text-[10px] text-text-secondary mt-0.5">{prod.categoria}</p>
+              alertasFiltradas.map(prod => {
+                const severidad = severidadStock(prod.stock);
+                return (
+                  <div key={prod.id} className="flex items-center justify-between gap-3 p-2.5 rounded-2xl border border-border-custom bg-bg-primary text-xs">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-text-primary truncate">{prod.nombre}</p>
+                      <p className="text-[10px] text-text-secondary mt-0.5">{prod.categoria}</p>
+                    </div>
+                    <span className={`font-bold px-2 py-0.5 rounded-lg whitespace-nowrap border ${severidad.clase}`}>
+                      {severidad.texto} &bull; {prod.stock}
+                    </span>
                   </div>
-                  <span className="bg-amber-500/10 text-amber-600 font-bold px-2 py-0.5 rounded-lg whitespace-nowrap">
-                    Quedan: {prod.stock}
-                  </span>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
-          {stockAlerts.length > 0 ? (
+          {alertasFiltradas.length > 0 ? (
             <button
               onClick={enviarListaCompras}
               className="w-full mt-4 px-4 py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"

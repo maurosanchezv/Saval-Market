@@ -107,7 +107,7 @@ export default function Clientes() {
 
         <button
           onClick={openAddModal}
-          className="px-4 py-2.5 rounded-2xl bg-primary hover:bg-primary-hover active:bg-primary-active text-white text-sm font-bold shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full sm:w-auto px-4 py-2.5 rounded-2xl bg-primary hover:bg-primary-hover active:bg-primary-active text-white text-sm font-bold shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <Plus size={18} />
           <span>Nuevo Cliente</span>
@@ -192,7 +192,7 @@ export default function Clientes() {
 
       {/* Modal Registrar Cliente */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center p-4 py-8">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
           
           <div className="relative w-full max-w-md bg-bg-secondary border border-border-custom rounded-3xl shadow-2xl p-6 transition-all">

@@ -356,13 +356,13 @@ export default function Inventario() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3">
           <button
             onClick={() => { cargarCategorias(); setIsCategoryModalOpen(true); }}
             className="px-4 py-2.5 rounded-2xl bg-bg-secondary border border-border-custom hover:bg-bg-primary text-text-primary text-sm font-bold shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Settings size={18} />
-            <span>Gestionar Categorías</span>
+            <span>Categorías</span>
           </button>
           <button
             onClick={() => setShowScanner(true)}
@@ -374,7 +374,7 @@ export default function Inventario() {
           </button>
           <button
             onClick={() => openAddModal()}
-            className="px-4 py-2.5 rounded-2xl bg-primary hover:bg-primary-hover active:bg-primary-active text-white text-sm font-bold shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="col-span-2 sm:col-span-1 px-4 py-2.5 rounded-2xl bg-primary hover:bg-primary-hover active:bg-primary-active text-white text-sm font-bold shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Plus size={18} />
             <span>Nuevo Producto</span>
@@ -470,6 +470,7 @@ export default function Inventario() {
                     <img
                       src={prod.imagen_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=300'}
                       alt={prod.nombre}
+                      loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     {prod.activo === false && (
@@ -603,6 +604,7 @@ export default function Inventario() {
                         <img
                           src={prod.imagen_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=300'}
                           alt={prod.nombre}
+                          loading="lazy"
                           className="w-9 h-9 rounded-xl object-cover border border-border-custom"
                         />
                       </td>
@@ -680,7 +682,7 @@ export default function Inventario() {
 
       {/* Modal Agregar/Editar */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center p-4 py-8">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
           
           <div className="relative w-full max-w-lg bg-bg-secondary border border-border-custom rounded-3xl shadow-2xl p-6 transition-all">
@@ -1411,7 +1413,7 @@ export default function Inventario() {
 
       {/* Modal Gestionar Categorías */}
       {isCategoryModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center p-4 py-8">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsCategoryModalOpen(false)} />
           
           <div className="relative w-full max-w-md bg-bg-secondary border border-border-custom rounded-3xl shadow-2xl p-6 transition-all">
@@ -1485,7 +1487,7 @@ export default function Inventario() {
 
       {/* Modal Ajuste Rápido de Stock (producto encontrado al escanear) */}
       {ajusteStockProducto && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center p-4 py-8">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !guardandoAjuste && setAjusteStockProducto(null)} />
 
           <div className="relative w-full max-w-sm bg-bg-secondary border border-border-custom rounded-3xl shadow-2xl p-6 space-y-5">

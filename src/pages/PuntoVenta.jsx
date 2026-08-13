@@ -390,6 +390,7 @@ export default function PuntoVenta() {
                     <img
                       src={prod.imagen_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=300'}
                       alt={prod.nombre}
+                      loading="lazy"
                       className="w-full h-full object-cover"
                     />
                     <span className={`absolute top-1.5 right-1.5 text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-lg shrink-0 backdrop-blur-sm ${
@@ -680,7 +681,7 @@ export default function PuntoVenta() {
 
       {/* Modal Calculadora Dual por Peso / Dinero */}
       {weightModalProduct && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center p-4 py-8">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setWeightModalProduct(null)} />
 
           <div className="relative w-full max-w-md bg-bg-secondary border border-border-custom rounded-3xl shadow-2xl p-6 transition-all space-y-5">

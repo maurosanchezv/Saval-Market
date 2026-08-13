@@ -730,6 +730,7 @@ export default function Catalogo() {
                           "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=300"
                         }
                         alt={prod.nombre}
+                        loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       {prod.stock <= 0 ? (
@@ -855,6 +856,7 @@ export default function Catalogo() {
                       "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=300"
                     }
                     alt={prod.nombre}
+                    loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   {prod.stock <= 0 ? (
@@ -1412,7 +1414,7 @@ export default function Catalogo() {
 
       {/* Modal de Vista Rápida */}
       {quickViewProduct && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center p-4 py-8">
           <div
             className="absolute inset-0 bg-black/70 backdrop-blur-md"
             onClick={() => setQuickViewProduct(null)}
@@ -1542,7 +1544,7 @@ export default function Catalogo() {
 
       {/* Modal Calculadora Dual por Peso / Dinero en la Web */}
       {weightModalProduct && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center p-4 py-8">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setWeightModalProduct(null)}

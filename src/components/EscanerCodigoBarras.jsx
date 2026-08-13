@@ -84,7 +84,7 @@ export default function EscanerCodigoBarras({ onDetected, onClose, titulo = 'Esc
   };
 
   return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] overflow-y-auto flex items-start justify-center p-4 py-8">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
       <div className="relative w-full max-w-sm bg-bg-secondary border border-border-custom rounded-3xl shadow-2xl p-5 space-y-4">

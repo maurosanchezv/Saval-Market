@@ -209,7 +209,7 @@ export default function Banners() {
 
         <button
           onClick={openAddModal}
-          className="px-4 py-2.5 rounded-2xl bg-primary hover:bg-primary-hover active:bg-primary-active text-white text-sm font-bold shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full sm:w-auto px-4 py-2.5 rounded-2xl bg-primary hover:bg-primary-hover active:bg-primary-active text-white text-sm font-bold shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <Plus size={18} />
           <span>Nuevo Banner</span>
@@ -239,7 +239,7 @@ export default function Banners() {
                 {/* Imagen */}
                 <div className="w-full sm:w-56 h-36 sm:h-auto shrink-0 bg-bg-primary relative overflow-hidden border-b sm:border-b-0 sm:border-r border-border-custom">
                   {banner.imagen_url ? (
-                    <img src={banner.imagen_url} alt={banner.titulo} className="w-full h-full object-cover" />
+                    <img src={banner.imagen_url} alt={banner.titulo} loading="lazy" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <ImageOff className="text-text-muted" size={28} />
@@ -323,7 +323,7 @@ export default function Banners() {
 
       {/* Modal Agregar/Editar */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-start justify-center p-4 py-8">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
 
           <div className="relative w-full max-w-lg bg-bg-secondary border border-border-custom rounded-3xl shadow-2xl p-6 transition-all">

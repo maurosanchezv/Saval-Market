@@ -30,6 +30,19 @@ const badgeEstadoVenta = (venta) => {
 
 const conceptoVenta = (venta) => (venta.metodo_pago?.startsWith('WhatsApp') ? 'Pedido Web (WhatsApp)' : 'Venta en POS');
 
+// El selector nativo de fecha en Android puede mostrar el calendario del sistema operativo
+// (ej. era japonesa) si el teléfono lo tiene configurado así, aunque el valor guardado
+// siga siendo gregoriano. Forzamos calendar: 'gregory' para mostrar siempre una fecha clara.
+const formatFechaGregoriana = (valorISO) => {
+  if (!valorISO) return '';
+  return new Date(`${valorISO}T00:00:00`).toLocaleDateString('es-PY', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    calendar: 'gregory',
+  });
+};
+
 export default function Finanzas() {
   const [ventas, setVentas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -143,27 +156,29 @@ export default function Finanzas() {
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-end gap-3">
-          <div className="flex-1 space-y-1">
+          <div className="flex-1 min-w-0 space-y-1">
             <label className="text-xs font-bold text-text-secondary uppercase">Desde</label>
             <input
               type="date"
               value={rangoDesde}
               max={rangoHasta}
               onChange={(e) => setRangoDesde(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-border-custom bg-bg-primary text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full min-w-0 px-3.5 py-2.5 rounded-xl border border-border-custom bg-bg-primary text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
             />
+            <p className="text-[10px] text-text-secondary truncate">{formatFechaGregoriana(rangoDesde)}</p>
           </div>
-          <div className="flex-1 space-y-1">
+          <div className="flex-1 min-w-0 space-y-1">
             <label className="text-xs font-bold text-text-secondary uppercase">Hasta</label>
             <input
               type="date"
               value={rangoHasta}
               min={rangoDesde}
               onChange={(e) => setRangoHasta(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-border-custom bg-bg-primary text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full min-w-0 px-3.5 py-2.5 rounded-xl border border-border-custom bg-bg-primary text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
             />
+            <p className="text-[10px] text-text-secondary truncate">{formatFechaGregoriana(rangoHasta)}</p>
           </div>
-          <div className="flex-1 p-3 rounded-xl bg-primary-soft/40 border border-primary/10 text-center sm:text-left">
+          <div className="flex-1 min-w-0 p-3 rounded-xl bg-primary-soft/40 border border-primary/10 text-center sm:text-left">
             <p className="text-[10px] font-bold uppercase text-primary tracking-wider">Total del período</p>
             <p className="font-heading font-extrabold text-lg text-text-primary">
               {rangoValido ? formatPrecio(gananciasRango) : '—'}

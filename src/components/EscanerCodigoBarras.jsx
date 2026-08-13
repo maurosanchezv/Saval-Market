@@ -17,27 +17,54 @@ export default function EscanerCodigoBarras({ onDetected, onClose, titulo = 'Esc
   useEffect(() => {
     if (manualMode) return;
     let detectado = false;
+    let cancelado = false;
     const scanner = new Html5Qrcode(elementId);
     scannerRef.current = scanner;
 
-    scanner
-      .start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 260, height: 160 } },
-        (decodedText) => {
-          if (detectado) return;
-          detectado = true;
-          scanner.stop().then(() => scanner.clear()).catch(() => {});
-          onDetected(decodedText.trim());
-        },
-        () => {} // ignorar fallos de decodificación cuadro a cuadro (es normal mientras se enfoca)
-      )
-      .catch(() => {
-        setError('No se pudo acceder a la cámara. Revisá los permisos del navegador o ingresá el código manualmente.');
-      });
+    const scanConfig = { fps: 10, qrbox: { width: 260, height: 160 } };
+
+    const onSuccess = (decodedText) => {
+      if (detectado) return;
+      detectado = true;
+      scanner.stop().then(() => scanner.clear()).catch(() => {});
+      onDetected(decodedText.trim());
+    };
+    const onFailure = () => {}; // ignorar fallos de decodificación cuadro a cuadro (es normal mientras se enfoca)
+
+    const iniciarEscaner = async () => {
+      // En Android/Chrome, arrancar con el constraint genérico { facingMode: 'environment' }
+      // deja a veces el <video> con dimensiones 0x0 (pantalla negra) sin lanzar error.
+      // Pedimos la lista de cámaras y arrancamos por deviceId explícito, que es estable
+      // tanto en Android/Chrome como en iPhone/Safari.
+      try {
+        const camaras = await Html5Qrcode.getCameras();
+        if (cancelado) return;
+        if (!camaras || camaras.length === 0) throw new Error('No hay cámaras disponibles');
+
+        const camaraTrasera =
+          camaras.find((c) => /back|trasera|rear|environment/i.test(c.label)) ||
+          camaras[camaras.length - 1];
+
+        await scanner.start(camaraTrasera.id, scanConfig, onSuccess, onFailure);
+      } catch {
+        if (cancelado) return;
+        // Respaldo: intentar con el constraint genérico por si getCameras() falló
+        // (p. ej. navegadores sin enumerateDevices) antes de mostrar el error.
+        try {
+          await scanner.start({ facingMode: 'environment' }, scanConfig, onSuccess, onFailure);
+        } catch {
+          if (!cancelado) {
+            setError('No se pudo acceder a la cámara. Revisá los permisos del navegador o ingresá el código manualmente.');
+          }
+        }
+      }
+    };
+
+    iniciarEscaner();
 
     return () => {
       detectado = true;
+      cancelado = true;
       if (scannerRef.current) {
         scannerRef.current.stop().then(() => scannerRef.current.clear()).catch(() => {});
       }

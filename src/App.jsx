@@ -32,67 +32,6 @@ const componentMapping = {
   Banners
 };
 
-// TEMPORAL: visor del diagnóstico del escáner guardado en localStorage.
-// Sobrevive a que la pestaña se cuelgue/recargue (a diferencia del estado en memoria
-// del modal del escáner). Remover junto con el resto del código de diagnóstico.
-function DebugScannerViewer() {
-  const [log, setLog] = useState(null);
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const raw = localStorage.getItem('debug_escaner_log');
-    if (raw) {
-      try {
-        setLog(JSON.parse(raw));
-      } catch {
-        setLog(null);
-      }
-    }
-  }, []);
-
-  if (!log || log.length === 0) return null;
-
-  const texto = log.join('\n');
-
-  return (
-    <div className="fixed bottom-4 left-4 z-[9999]">
-      {open ? (
-        <div className="w-[calc(100vw-2rem)] max-w-md bg-black/95 text-amber-300 rounded-2xl shadow-2xl border border-amber-500/40 p-3 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider">Diagnóstico del escáner</span>
-            <button onClick={() => setOpen(false)} className="text-white text-xs px-2 cursor-pointer">✕</button>
-          </div>
-          <pre className="text-[9px] font-mono whitespace-pre-wrap max-h-64 overflow-y-auto leading-relaxed">{texto}</pre>
-          <div className="flex gap-2">
-            <button
-              onClick={() => navigator.clipboard?.writeText(texto)}
-              className="flex-1 py-1.5 rounded-lg bg-amber-500 text-black text-[10px] font-bold cursor-pointer"
-            >
-              Copiar
-            </button>
-            <button
-              onClick={() => {
-                localStorage.removeItem('debug_escaner_log');
-                setLog(null);
-              }}
-              className="flex-1 py-1.5 rounded-lg bg-white/10 text-white text-[10px] font-bold cursor-pointer"
-            >
-              Borrar
-            </button>
-          </div>
-        </div>
-      ) : (
-        <button
-          onClick={() => setOpen(true)}
-          className="px-3 py-2 rounded-full bg-amber-500 text-black text-[10px] font-bold shadow-xl cursor-pointer"
-        >
-          🐞 Ver diagnóstico del escáner
-        </button>
-      )}
-    </div>
-  );
-}
-
 // Componente para proteger rutas administrativas
 function ProtectedRoute({ user, children }) {
   if (!user) {
@@ -197,7 +136,6 @@ function MainApp() {
 
   return (
     <BrowserRouter>
-      <DebugScannerViewer />
       <Routes>
         {activeRoutes.map((route) => {
           const PageComponent = componentMapping[route.component];

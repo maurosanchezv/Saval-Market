@@ -17,6 +17,7 @@ import PuntoVenta from './pages/PuntoVenta';
 import Clientes from './pages/Clientes';
 import Pedidos from './pages/Pedidos';
 import Configuracion from './pages/Configuracion';
+import Banners from './pages/Banners';
 
 // Mapeo de nombres de componentes string a imports reales
 const componentMapping = {
@@ -27,7 +28,8 @@ const componentMapping = {
   PuntoVenta,
   Clientes,
   Pedidos,
-  Configuracion
+  Configuracion,
+  Banners
 };
 
 // Componente para proteger rutas administrativas

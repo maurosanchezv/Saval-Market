@@ -53,18 +53,39 @@ create table ventas (
 );
 
 -- ============================================
+-- CORE: Banners promocionales del Catálogo (Home)
+-- ============================================
+create table banners (
+  id uuid default gen_random_uuid() primary key,
+  titulo text not null,
+  subtitulo text,
+  badge text,
+  boton_texto text default 'Ver más',
+  categoria_destino text default 'Todos', -- categoría a la que se filtra el catálogo al hacer clic
+  imagen_url text,
+  orden integer default 0, -- controla el orden de aparición en el carrusel (menor = primero)
+  activo boolean default true,
+  creado_en timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- ============================================
 -- Row Level Security
 -- ============================================
 alter table clientes enable row level security;
 alter table productos enable row level security;
 alter table ventas enable row level security;
+alter table banners enable row level security;
 
 create policy "Autenticados acceden a clientes" on clientes for all using (auth.uid() is not null);
 create policy "Autenticados acceden a productos" on productos for all using (auth.uid() is not null);
 create policy "Autenticados acceden a ventas" on ventas for all using (auth.uid() is not null);
+create policy "Autenticados acceden a banners" on banners for all using (auth.uid() is not null);
 
 -- El catálogo público (sin login) necesita poder leer los productos activos
 create policy "Público ve productos activos" on productos for select using (activo = true);
+
+-- El catálogo público (sin login) necesita poder leer los banners activos
+create policy "Público ve banners activos" on banners for select using (activo = true);
 
 -- ============================================
 -- Función atómica para registrar ventas y descontar stock

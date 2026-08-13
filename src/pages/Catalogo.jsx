@@ -28,49 +28,8 @@ import {
 } from "lucide-react";
 import Header from "../components/Header";
 
-// Banners promocionales rotativos para el Hero Slider
-const BANNERS = [
-  {
-    id: 1,
-    title: "Verdulería Fresca al Mejor Precio",
-    subtitle: "Tomate perita, bananas por docena y productos seleccionados de la zona.",
-    badge: "⚖️ Productos por Kilo & Docena",
-    btnText: "Ver Verdulería",
-    categoria: "Verdulería",
-    gradient: "from-emerald-900/90 via-emerald-800/80 to-black/60",
-    image: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&q=80&w=1200",
-  },
-  {
-    id: 2,
-    title: "Bebidas Frías Listas para Llevar",
-    subtitle: "Gaseosas de 2L, jugos en polvo, jugos naturales y cervezas heladas.",
-    badge: "🥤 Bebidas & Refrescos",
-    btnText: "Ver Bebidas",
-    categoria: "Bebidas",
-    gradient: "from-red-900/90 via-red-800/80 to-black/60",
-    image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=1200",
-  },
-  {
-    id: 3,
-    title: "Coquito Casero & Panadería Saval",
-    subtitle: "Fritos, pan lactal y coquitos crujientes al peso elaborados todos los días.",
-    badge: "🥐 Horneado Fresco Todos los Días",
-    btnText: "Ver Panadería",
-    categoria: "Panadería",
-    gradient: "from-amber-900/90 via-amber-800/80 to-black/60",
-    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=1200",
-  },
-  {
-    id: 4,
-    title: "Hacé tu Pedido Online y Retirá Sin Filas",
-    subtitle: "Armá tu lista desde tu celular y pasá a retirar por el local.",
-    badge: "⚡ Servicio Pickup Rápido",
-    btnText: "Ver Todo el Catálogo",
-    categoria: "Todos",
-    gradient: "from-slate-900/90 via-gray-900/80 to-black/60",
-    image: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200",
-  },
-];
+// Degradado oscuro fijo aplicado sobre la imagen de cada banner para que el texto sea legible
+const BANNER_GRADIENT = "from-black/85 via-black/55 to-black/20";
 
 // Mapeo predeterminado de estilos de cajitas por categoría
 const CATEGORY_STYLE_MAP = {
@@ -110,15 +69,34 @@ export default function Catalogo() {
   }, []);
 
   // Banner Slider State
+  const [banners, setBanners] = useState([]);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+
+  // Cargar banners activos desde el panel administrativo
+  useEffect(() => {
+    const fetchBanners = async () => {
+      const { data, error } = await supabase
+        .from("banners")
+        .select("*")
+        .eq("activo", true)
+        .order("orden");
+
+      if (!error && data) {
+        setBanners(data);
+        setCurrentBannerIndex(0);
+      }
+    };
+    fetchBanners();
+  }, []);
 
   // Auto-play banners cada 4.5 segundos
   useEffect(() => {
+    if (banners.length <= 1) return;
     const timer = setInterval(() => {
-      setCurrentBannerIndex((prev) => (prev + 1) % BANNERS.length);
+      setCurrentBannerIndex((prev) => (prev + 1) % banners.length);
     }, 4500);
     return () => clearInterval(timer);
-  }, []);
+  }, [banners.length]);
 
   // Modal para Venta por Peso / Dinero (Calculadora Dual en Web)
   const [weightModalProduct, setWeightModalProduct] = useState(null);
@@ -466,117 +444,127 @@ export default function Catalogo() {
         onCartClick={() => setIsCartOpen(true)}
       />
 
-      {/* Hero Carousel Banner Promocional Rotativo */}
-      <section className="relative overflow-hidden bg-bg-secondary border-b border-border-custom">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="relative rounded-3xl overflow-hidden shadow-2xl h-[260px] sm:h-[340px] md:h-[380px]">
-            {/* Slide de Banners */}
-            {BANNERS.map((banner, index) => (
-              <div
-                key={banner.id}
-                className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                  index === currentBannerIndex
-                    ? "opacity-100 z-10 pointer-events-auto"
-                    : "opacity-0 z-0 pointer-events-none"
-                }`}
-              >
-                {/* Imagen de Fondo */}
-                <img
-                  src={banner.image}
-                  alt={banner.title}
-                  className="w-full h-full object-cover scale-105"
-                />
-
-                {/* Capa de Degradado Oscuro */}
+      {/* Hero Carousel Banner Promocional Rotativo (administrable desde /admin/banners) */}
+      {banners.length > 0 && (
+        <section className="relative overflow-hidden bg-bg-secondary border-b border-border-custom">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl h-[260px] sm:h-[340px] md:h-[380px]">
+              {/* Slide de Banners */}
+              {banners.map((banner, index) => (
                 <div
-                  className={`absolute inset-0 bg-gradient-to-r ${banner.gradient}`}
-                />
+                  key={banner.id}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                    index === currentBannerIndex
+                      ? "opacity-100 z-10 pointer-events-auto"
+                      : "opacity-0 z-0 pointer-events-none"
+                  }`}
+                >
+                  {/* Imagen de Fondo */}
+                  <img
+                    src={banner.imagen_url || "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200"}
+                    alt={banner.titulo}
+                    className="w-full h-full object-cover scale-105"
+                  />
 
-                {/* Contenido del Banner */}
-                <div className="absolute inset-0 p-6 sm:p-10 md:p-12 flex flex-col justify-center max-w-2xl text-white">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[10px] sm:text-xs font-bold text-white mb-3 w-fit border border-white/20">
-                    <Sparkles size={12} className="text-amber-300 animate-pulse" />
-                    {banner.badge}
-                  </span>
-                  <h2 className="font-heading font-extrabold text-2xl sm:text-4xl md:text-5xl text-white leading-tight mb-2 tracking-tight drop-shadow-md">
-                    {banner.title}
-                  </h2>
-                  <p className="text-white/90 text-xs sm:text-base mb-5 line-clamp-2 leading-relaxed drop-shadow-sm">
-                    {banner.subtitle}
-                  </p>
+                  {/* Capa de Degradado Oscuro */}
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-r ${BANNER_GRADIENT}`}
+                  />
 
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => {
-                        setSelectedCategory(banner.categoria);
-                        const el = document.getElementById("catalogo-principal");
-                        if (el) el.scrollIntoView({ behavior: "smooth" });
-                      }}
-                      className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-2xl bg-white text-gray-950 font-bold text-xs sm:text-sm shadow-xl hover:bg-gray-100 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer group"
-                    >
-                      <span>{banner.btnText}</span>
-                      <ArrowRight
-                        size={16}
-                        className="group-hover:translate-x-1 transition-transform"
-                      />
-                    </button>
+                  {/* Contenido del Banner */}
+                  <div className="absolute inset-0 p-6 sm:p-10 md:p-12 flex flex-col justify-center max-w-2xl text-white">
+                    {banner.badge && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[10px] sm:text-xs font-bold text-white mb-3 w-fit border border-white/20">
+                        <Sparkles size={12} className="text-amber-300 animate-pulse" />
+                        {banner.badge}
+                      </span>
+                    )}
+                    <h2 className="font-heading font-extrabold text-2xl sm:text-4xl md:text-5xl text-white leading-tight mb-2 tracking-tight drop-shadow-md">
+                      {banner.titulo}
+                    </h2>
+                    {banner.subtitulo && (
+                      <p className="text-white/90 text-xs sm:text-base mb-5 line-clamp-2 leading-relaxed drop-shadow-sm">
+                        {banner.subtitulo}
+                      </p>
+                    )}
 
-                    <div className="hidden sm:flex items-center gap-2 ml-2">
-                      {isStoreOpen() ? (
-                        <span className="px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 text-[11px] font-bold backdrop-blur-sm">
-                          🟢 Abierto hoy (07:00 a 21:00 hs)
-                        </span>
-                      ) : (
-                        <span className="px-3 py-1 rounded-full bg-red-500/30 text-red-200 border border-red-400/30 text-[11px] font-bold backdrop-blur-sm">
-                          🔴 Horario: 07:00 a 21:00 hs
-                        </span>
-                      )}
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => {
+                          setSelectedCategory(banner.categoria_destino || "Todos");
+                          const el = document.getElementById("catalogo-principal");
+                          if (el) el.scrollIntoView({ behavior: "smooth" });
+                        }}
+                        className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-2xl bg-white text-gray-950 font-bold text-xs sm:text-sm shadow-xl hover:bg-gray-100 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer group"
+                      >
+                        <span>{banner.boton_texto || "Ver más"}</span>
+                        <ArrowRight
+                          size={16}
+                          className="group-hover:translate-x-1 transition-transform"
+                        />
+                      </button>
+
+                      <div className="hidden sm:flex items-center gap-2 ml-2">
+                        {isStoreOpen() ? (
+                          <span className="px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 text-[11px] font-bold backdrop-blur-sm">
+                            🟢 Abierto hoy (07:00 a 21:00 hs)
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 rounded-full bg-red-500/30 text-red-200 border border-red-400/30 text-[11px] font-bold backdrop-blur-sm">
+                            🔴 Horario: 07:00 a 21:00 hs
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-
-            {/* Botones Flechas Izquierda / Derecha */}
-            <button
-              onClick={() =>
-                setCurrentBannerIndex(
-                  (prev) => (prev - 1 + BANNERS.length) % BANNERS.length,
-                )
-              }
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-md transition-all cursor-pointer hover:scale-110"
-              title="Anterior"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <button
-              onClick={() =>
-                setCurrentBannerIndex((prev) => (prev + 1) % BANNERS.length)
-              }
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-md transition-all cursor-pointer hover:scale-110"
-              title="Siguiente"
-            >
-              <ChevronRight size={20} />
-            </button>
-
-            {/* Puntitos Indicadores (Pagination Dots) */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
-              {BANNERS.map((banner, idx) => (
-                <button
-                  key={banner.id}
-                  onClick={() => setCurrentBannerIndex(idx)}
-                  className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                    idx === currentBannerIndex
-                      ? "w-8 bg-white"
-                      : "w-2.5 bg-white/40 hover:bg-white/70"
-                  }`}
-                  title={`Ver banner ${idx + 1}`}
-                />
               ))}
+
+              {/* Botones Flechas Izquierda / Derecha */}
+              {banners.length > 1 && (
+                <>
+                  <button
+                    onClick={() =>
+                      setCurrentBannerIndex(
+                        (prev) => (prev - 1 + banners.length) % banners.length,
+                      )
+                    }
+                    className="absolute left-3 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-md transition-all cursor-pointer hover:scale-110"
+                    title="Anterior"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    onClick={() =>
+                      setCurrentBannerIndex((prev) => (prev + 1) % banners.length)
+                    }
+                    className="absolute right-3 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-md transition-all cursor-pointer hover:scale-110"
+                    title="Siguiente"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+
+                  {/* Puntitos Indicadores (Pagination Dots) */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+                    {banners.map((banner, idx) => (
+                      <button
+                        key={banner.id}
+                        onClick={() => setCurrentBannerIndex(idx)}
+                        className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                          idx === currentBannerIndex
+                            ? "w-8 bg-white"
+                            : "w-2.5 bg-white/40 hover:bg-white/70"
+                        }`}
+                        title={`Ver banner ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Cuerpo principal */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

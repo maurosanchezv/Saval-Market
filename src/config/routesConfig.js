@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, Package, ShoppingCart, ClipboardList, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, Package, ShoppingCart, ClipboardList, Settings, Image } from 'lucide-react';
 
 export const routesConfig = [
   // Rutas públicas
@@ -56,6 +56,14 @@ export const routesConfig = [
     label: "Clientes",
     icon: Users,
     component: "Clientes",
+    isAdmin: true,
+    requiredPackage: "core"
+  },
+  {
+    path: "/admin/banners",
+    label: "Banners",
+    icon: Image,
+    component: "Banners",
     isAdmin: true,
     requiredPackage: "core"
   },

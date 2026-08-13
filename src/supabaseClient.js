@@ -68,6 +68,14 @@ const initMockDB = () => {
       { id: 'u1', nombre: 'Admin Saval', rol: 'admin', activo: true }
     ]));
   }
+  if (!localStorage.getItem('mock_saval_banners')) {
+    localStorage.setItem('mock_saval_banners', JSON.stringify([
+      { id: 'b1', titulo: 'Verdulería Fresca al Mejor Precio', subtitulo: 'Tomate perita, bananas por docena y productos seleccionados de la zona.', badge: '⚖️ Productos por Kilo & Docena', boton_texto: 'Ver Verdulería', categoria_destino: 'Verdulería', imagen_url: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&q=80&w=1200', orden: 1, activo: true },
+      { id: 'b2', titulo: 'Bebidas Frías Listas para Llevar', subtitulo: 'Gaseosas de 2L, jugos en polvo, jugos naturales y cervezas heladas.', badge: '🥤 Bebidas & Refrescos', boton_texto: 'Ver Bebidas', categoria_destino: 'Bebidas', imagen_url: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=1200', orden: 2, activo: true },
+      { id: 'b3', titulo: 'Coquito Casero & Panadería Saval', subtitulo: 'Fritos, pan lactal y coquitos crujientes al peso elaborados todos los días.', badge: '🥐 Horneado Fresco Todos los Días', boton_texto: 'Ver Panadería', categoria_destino: 'Panadería', imagen_url: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=1200', orden: 3, activo: true },
+      { id: 'b4', titulo: 'Hacé tu Pedido Online y Retirá Sin Filas', subtitulo: 'Armá tu lista desde tu celular y pasá a retirar por el local.', badge: '⚡ Servicio Pickup Rápido', boton_texto: 'Ver Todo el Catálogo', categoria_destino: 'Todos', imagen_url: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200', orden: 4, activo: true }
+    ]));
+  }
 };
 
 // Instanciar cliente real o mockup

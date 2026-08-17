@@ -11,5 +11,4 @@ Disallow: /punto-venta
 Allow: /
 Allow: /catalogo
 
-# Opcional: Reemplaza con tu dominio real cuando lo publiques
-# Sitemap: https://tu-dominio.com/sitemap.xml
+Sitemap: https://saval-market.vercel.app/sitemap.xml
